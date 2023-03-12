@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/big"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 
-	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -38,7 +39,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	// Load your chainID
+	chainIdStr, ok := os.LookupEnv("CHAIN_ID")
+	if !ok {
+		log.Fatal("CHAIN_ID environment variable not set")
+	}
+	chainId, err := strconv.ParseInt(chainIdStr, 10, 64)
+	if err != nil {
+		log.Fatal(err)
+	}
 	// Load and deploy each contract in succession
 	contractFiles, err := ioutil.ReadDir("./contracts")
 	if err != nil {
@@ -93,20 +102,23 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			// gasLimit := uint64(120000)
 			// Calculate the gas required for deploying the contract
-			estimateGas, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
-				From: crypto.PubkeyToAddress(privateKey.PublicKey),
-				To:   nil,
-				Data: bytecodeBytes,
-			})
+			// estimateGas, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
+			// 	From: crypto.PubkeyToAddress(privateKey.PublicKey),
+			// 	To:   nil,
+			// 	Data: bytecodeBytes,
+			// })
+			// if err != nil {
+			// 	fmt.Printf("Estimate gas overflow uint64\n")
+			// 	log.Fatal(err)
+			// }
+			// fmt.Printf("Estimated gas: %v\n", estimateGas)
+			gasLimit := uint64(125000)
+			// Create a new instance of a transaction signer
+			auth, err := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(chainId))
 			if err != nil {
 				log.Fatal(err)
 			}
-			fmt.Printf("Estimated gas: %v\n", estimateGas)
-			gasLimit := estimateGas
-			// Create a new instance of a transaction signer
-			auth := bind.NewKeyedTransactor(privateKey)
 			auth.GasPrice = gasPrice
 			auth.GasLimit = gasLimit //estimateGas +10000
 
