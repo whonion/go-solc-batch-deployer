@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -13,6 +14,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -70,7 +72,6 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-
 			// Rename output files
 			name := strings.TrimSuffix(file.Name(), filepath.Ext(file.Name()))
 			binFilename := fmt.Sprintf("%s.bin", name)
@@ -86,12 +87,14 @@ func main() {
 				log.Fatal(err)
 			}
 
-			// Get the bytecode and ABI from the compiled contract
+			//Get the bytecode and ABI from the compiled contract
 			bytecodeFile := filepath.Join(binDir, binFilename)
 			bytecodeBytes, err := ioutil.ReadFile(bytecodeFile)
 			if err != nil {
 				log.Fatal(err)
 			}
+			bytecodeStr := string(bytecodeBytes)
+			constructorBytes, err := hex.DecodeString(bytecodeStr[:len(bytecodeStr)-68])
 			abiFile := filepath.Join(binDir, abiFilename)
 			abiBytes, err := ioutil.ReadFile(abiFile)
 			if err != nil {
@@ -103,24 +106,24 @@ func main() {
 				log.Fatal(err)
 			}
 			// Calculate the gas required for deploying the contract
-			// estimateGas, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
-			// 	From: crypto.PubkeyToAddress(privateKey.PublicKey),
-			// 	To:   nil,
-			// 	Data: bytecodeBytes,
-			// })
-			// if err != nil {
-			// 	fmt.Printf("Estimate gas overflow uint64\n")
-			// 	log.Fatal(err)
-			// }
-			// fmt.Printf("Estimated gas: %v\n", estimateGas)
-			gasLimit := uint64(125000)
+			estimateGas, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
+				From: crypto.PubkeyToAddress(privateKey.PublicKey),
+				To:   nil,
+				Data: constructorBytes,
+			})
+			if err != nil {
+				fmt.Printf("Estimate gas overflow uint64\n")
+				log.Fatal(err)
+			}
+			fmt.Printf("Estimated gas for deploy: %v\n", estimateGas)
 			// Create a new instance of a transaction signer
 			auth, err := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(chainId))
 			if err != nil {
 				log.Fatal(err)
 			}
+			gasLimit := estimateGas
 			auth.GasPrice = gasPrice
-			auth.GasLimit = gasLimit //estimateGas +10000
+			auth.GasLimit = gasLimit + uint64(10000)
 
 			// Load the contract's ABI
 			contractABI, err := abi.JSON(bytes.NewReader(abiBytes))
@@ -129,7 +132,7 @@ func main() {
 			}
 
 			// Deploy the contract
-			address, tx, _, err := bind.DeployContract(auth, contractABI, bytecodeBytes, client)
+			address, tx, _, err := bind.DeployContract(auth, contractABI, constructorBytes, client)
 			if err != nil {
 				log.Fatal(err)
 			}
