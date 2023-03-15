@@ -34,8 +34,9 @@ source  $HOME/.bash_profile  &&  \
 go version  \
 sudo apt-get  install  tmux  \
 sudo apt-get install -y nodejs \
+sudo apt-get install -y npm \
 npm install -g npm \
-npm install solcjs \
+npm install solc \
 tmux new  -s  contract_deploy
 ```
 ```sh
