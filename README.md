@@ -2,7 +2,7 @@
 [![build-status]![Go version][go-badge]][go-url]  [![HitCount](https://hits.dwyl.com/whonion//whonion/SmartContractBatchDeployer.svg)](https://hits.dwyl.com/whonion/go-client-faucet-request) 
 
 
-# Example of batch deployment of smart contracts to EVM using Web3</br>
+# Example of batch deployment smart contracts to EVM using Go Lang</br>
 
 Implementation with go-ethereum
 
@@ -17,11 +17,11 @@ Implementation with go-ethereum
 
 - Installed NodeJS and `solcjs`
 
-- Installed Go Lang
+- Installed `Go Lang`
 
   
 
-## How to run with shell(without build) :
+## Setup Dependencies :
 
 ```sh
 ver="1.20"  &&  \
@@ -37,12 +37,22 @@ sudo apt-get install -y nodejs \
 sudo apt-get install -y npm \
 npm install -g npm \
 npm install solc \
-tmux new  -s  contract_deploy
 ```
+## Launch with `tmux`
+Add to `.env` your variables: `PRIVATE_KEY` (without **0x**),`RPC_PROVIDER` and `CHAIN_ID`
+
 ```sh
+CHAIN_ID = 5
+PRIVATE_KEY = '0x.......................................................'
+RPC_PROVIDER='https://eth-goerli.g.alchemy.com/v2/{YOUR_API_KEY}'
+```
+Add correct files *.sol to the `contacts` folder for deployment on the required chain
+
+```sh
+tmux new  -s  contract_deploy \
 git clone  https://github.com/whonion/SmartContractBatchDeployer.git  \
 cd SmartContractBatchDeployer  \
-go run  main.go  \
+go run  main.go
 ```
 [go-badge]: https://img.shields.io/badge/go-1.20-blue.svg
 [go-url]: https://go.dev
