@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math/big"
 	"os"
@@ -51,7 +50,7 @@ func main() {
 		log.Fatal(err)
 	}
 	// Load and deploy each contract in succession
-	contractFiles, err := ioutil.ReadDir("./contracts")
+	contractFiles, err := os.ReadDir("./contracts")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -89,14 +88,14 @@ func main() {
 
 			//Get the bytecode and ABI from the compiled contract
 			bytecodeFile := filepath.Join(binDir, binFilename)
-			bytecodeBytes, err := ioutil.ReadFile(bytecodeFile)
+			bytecodeBytes, err := os.ReadFile(bytecodeFile)
 			if err != nil {
 				log.Fatal(err)
 			}
 			bytecodeStr := string(bytecodeBytes)
 			constructorBytes, err := hex.DecodeString(bytecodeStr[:len(bytecodeStr)-68])
 			abiFile := filepath.Join(binDir, abiFilename)
-			abiBytes, err := ioutil.ReadFile(abiFile)
+			abiBytes, err := os.ReadFile(abiFile)
 			if err != nil {
 				log.Fatal(err)
 			}
