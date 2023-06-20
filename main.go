@@ -94,22 +94,32 @@ func main() {
 			}
 			bytecodeStr := string(bytecodeBytes)
 			constructorBytes, err := hex.DecodeString(bytecodeStr[:len(bytecodeStr)-68])
+			if err != nil {
+				log.Fatal(err)
+			}
+
 			abiFile := filepath.Join(binDir, abiFilename)
 			abiBytes, err := os.ReadFile(abiFile)
 			if err != nil {
 				log.Fatal(err)
 			}
+
 			// Set the gas price and gas limit
 			gasPrice, err := client.SuggestGasPrice(context.Background())
 			if err != nil {
 				log.Fatal(err)
 			}
+
 			// Calculate the gas required for deploying the contract
 			estimateGas, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
 				From: crypto.PubkeyToAddress(privateKey.PublicKey),
 				To:   nil,
 				Data: constructorBytes,
 			})
+			if err != nil {
+				log.Fatal(err)
+			}
+
 			if err != nil {
 				fmt.Printf("Estimate gas overflow uint64\n")
 				log.Fatal(err)
