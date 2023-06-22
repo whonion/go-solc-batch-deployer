@@ -1,7 +1,7 @@
 GOCMD=go
 GOTEST=$(GOCMD) test
 GOVET=$(GOCMD) vet
-BINARY_NAME=refueler
+BINARY_NAME=go-solc-batch-deployer
 VERSION?=1.0.0
 SERVICE_PORT?=3000
 DOCKER_REGISTRY?= #if set it should finished by /
@@ -19,8 +19,8 @@ all: help
 
 ## Build:
 build: ## Build your project and put the output binary in out/bin/
-	mkdir -p bin
-	$(GOCMD) build main.go
+	@mkdir -p bin
+	$(GOCMD) build -o bin/$(BINARY_NAME) main.go
 
 clean: ## Remove build related file
 	rm -fr ./bin
