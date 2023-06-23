@@ -1,10 +1,20 @@
-// SPDX-License-Identifier: MIT
+//SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0 <0.9.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import "github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20Detailed.sol";
+import "github.com/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20Mintable.sol";
 
-contract WETH is ERC20 {
-    constructor(uint256 initialSupply) ERC20("Wrapped Ethereum", "WETH") {
-        _mint(msg.sender, initialSupply);
+contract USDCKovan is ERC20, ERC20Detailed, ERC20Mintable {
+    
+    string NAME = "USDCKovan";
+    string SYMBOL = "USDC";
+    uint8  DECIMALS = 6;
+
+    constructor() 
+        public 
+        ERC20Detailed(NAME, SYMBOL, DECIMALS)
+        ERC20Mintable()
+    {
     }
 }
