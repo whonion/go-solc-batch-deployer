@@ -37,28 +37,11 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-
-	// Connect to the Ethereum network
-	client, err := ethclient.Dial(os.Getenv("RPC_PROVIDER"))
-	if err != nil {
-		log.Fatal("RPC_PROVIDER environment variable not set")
-	}
-
 	// Load your private key
 	privateKey, err := crypto.HexToECDSA(os.Getenv("PRIVATE_KEY"))
 	if err != nil {
 		log.Fatal("PRIVATE_KEY environment variable not set")
 	}
-	// Load your chainID
-	chainIDStr, ok := os.LookupEnv("CHAIN_ID")
-	if !ok {
-		log.Fatal("CHAIN_ID environment variable not set")
-	}
-	chainID, err := strconv.ParseInt(chainIDStr, 10, 64)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// Define EVM chains with corresponding explorer and RPC URLs
 	evmChains := map[int64]evmChain{
 		1: {
@@ -80,6 +63,12 @@ func main() {
 			RPCURL:      "https://1rpc.io/bnb",
 		},
 		42161: {
+			ChainID:     42161,
+			ChainName:   "Arbitrum",
+			ExplorerURL: "https://arbiscan.io",
+			RPCURL:      "https://rpc.ankr.com/arbitrum",
+		},
+		42170: {
 			ChainID:     42161,
 			ChainName:   "Arbitrum",
 			ExplorerURL: "https://arbiscan.io",
@@ -127,14 +116,64 @@ func main() {
 			ExplorerURL: "https://ftmscan.com",
 			RPCURL:      "https://1rpc.io/ftm",
 		},
+		5: {
+			ChainID:     5,
+			ChainName:   "Goerly Testnet",
+			ExplorerURL: "https://goerli.etherscan.io",
+			RPCURL:      "https://rpc.ankr.com/eth_goerli",
+		},
+		11155111: {
+			ChainID:     11155111,
+			ChainName:   "Sepolia",
+			ExplorerURL: "https://sepolia.etherscan.io",
+			RPCURL:      "https://endpoints.omniatech.io/v1/eth/sepolia/public",
+		},
+		534353: {
+			ChainID:     534353,
+			ChainName:   "Scroll Alpha Testnet",
+			ExplorerURL: "https://scrollscan.com",
+			RPCURL:      "https://scroll-alpha-public.unifra.io",
+		},
+		59140: {
+			ChainID:     59140,
+			ChainName:   "ConsenSys zkEVM (Linea)",
+			ExplorerURL: "https://goerli.lineascan.build",
+			RPCURL:      "https://rpc.goerli.linea.build",
+		},
+		6102: {
+			ChainID:     6102,
+			ChainName:   "Cascadia Testnet",
+			ExplorerURL: "https://explorer.cascadia.foundation",
+			RPCURL:      "https://testnet.cascadia.foundation",
+		},
 	}
-
+	// Load your chainID
+	chainIDStr, ok := os.LookupEnv("CHAIN_ID")
+	if !ok {
+		log.Fatal("CHAIN_ID environment variable not set")
+	}
+	chainID, err := strconv.ParseInt(chainIDStr, 10, 64)
+	if err != nil {
+		log.Fatal(err)
+	}
 	// Check if chainID exists in the evmChains map
 	chain, ok := evmChains[chainID]
 	if !ok {
 		log.Fatalf("Unsupported CHAIN_ID: %d", chainID)
 	}
 
+	// Connect to RPC Provider
+	rpcProvider, ok := os.LookupEnv("RPC_PROVIDER")
+	if !ok {
+		fmt.Printf("RPC_PROVIDER environment variable not set\n")
+		fmt.Printf("RPC will use the public node from https://chainlist.org/\n")
+		rpcProvider = chain.RPCURL
+	}
+
+	client, err := ethclient.Dial(rpcProvider)
+	if err != nil {
+		log.Fatal(err)
+	}
 	// Load and deploy each contract in succession
 	contractFiles, err := os.ReadDir("./contracts")
 	if err != nil {
