@@ -2,8 +2,11 @@
 
 # Example of batch deployment smart contracts to EVM using Go Lang</br>
 
-Implementation with go-ethereum
+Implementation with go-ethereum<br>
 
+Preview of code execution `main.go` <br>
+
+![go-solc-batch-deployer](https://github.com/whonion/go-solc-batch-deployer/blob/main/go-solc-batch-deployer.png?raw=true)
 ## Package description
 
 - main.go - main executable or build file
