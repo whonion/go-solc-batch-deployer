@@ -23,6 +23,14 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// Struct to store EVM chain information
+type evmChain struct {
+	ChainID     int64
+	ChainName   string
+	ExplorerURL string
+	RPCURL      string
+}
+
 func main() {
 	// Load environment variables from .env file
 	err := godotenv.Load()
@@ -42,14 +50,91 @@ func main() {
 		log.Fatal("PRIVATE_KEY environment variable not set")
 	}
 	// Load your chainID
-	chainIdStr, ok := os.LookupEnv("CHAIN_ID")
+	chainIDStr, ok := os.LookupEnv("CHAIN_ID")
 	if !ok {
 		log.Fatal("CHAIN_ID environment variable not set")
 	}
-	chainId, err := strconv.ParseInt(chainIdStr, 10, 64)
+	chainID, err := strconv.ParseInt(chainIDStr, 10, 64)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Define EVM chains with corresponding explorer and RPC URLs
+	evmChains := map[int64]evmChain{
+		1: {
+			ChainID:     1,
+			ChainName:   "Ethereum",
+			ExplorerURL: "https://etherscan.io",
+			RPCURL:      "https://eth.llamarpc.com",
+		},
+		10: {
+			ChainID:     10,
+			ChainName:   "Optimism",
+			ExplorerURL: "https://optimistic.etherscan.io",
+			RPCURL:      "https://rpc.ankr.com/optimism",
+		},
+		56: {
+			ChainID:     56,
+			ChainName:   "BSC",
+			ExplorerURL: "https://bscscan.com",
+			RPCURL:      "https://1rpc.io/bnb",
+		},
+		42161: {
+			ChainID:     42161,
+			ChainName:   "Arbitrum",
+			ExplorerURL: "https://arbiscan.io",
+			RPCURL:      "https://rpc.ankr.com/arbitrum",
+		},
+		137: {
+			ChainID:     137,
+			ChainName:   "Polygon",
+			ExplorerURL: "https://polygonscan.com",
+			RPCURL:      "https://polygon.llamarpc.com",
+		},
+		100: {
+			ChainID:     100,
+			ChainName:   "Gnosis",
+			ExplorerURL: "https://gnosisscan.io",
+			RPCURL:      "https://gnosis-rpc.com",
+		},
+		324: {
+			ChainID:     324,
+			ChainName:   "zkSync Era",
+			ExplorerURL: "https://explorer.zksync.io",
+			RPCURL:      "https://mainnet.era.zksync.io",
+		},
+		1101: {
+			ChainID:     1101,
+			ChainName:   "zkEVM",
+			ExplorerURL: "https://zkevm.polygonscan.com",
+			RPCURL:      "https://1rpc.io/zkevm",
+		},
+		43114: {
+			ChainID:     43114,
+			ChainName:   "Avalanche",
+			ExplorerURL: "https://snowtrace.io",
+			RPCURL:      "https://rpc.ankr.com/avalanche",
+		},
+		1313161554: {
+			ChainID:     1313161554,
+			ChainName:   "Aurora",
+			ExplorerURL: "https://mainnet.aurora.dev",
+			RPCURL:      "https://1rpc.io/aurora",
+		},
+		250: {
+			ChainID:     250,
+			ChainName:   "Fantom",
+			ExplorerURL: "https://ftmscan.com",
+			RPCURL:      "https://1rpc.io/ftm",
+		},
+	}
+
+	// Check if chainID exists in the evmChains map
+	chain, ok := evmChains[chainID]
+	if !ok {
+		log.Fatalf("Unsupported CHAIN_ID: %d", chainID)
+	}
+
 	// Load and deploy each contract in succession
 	contractFiles, err := os.ReadDir("./contracts")
 	if err != nil {
@@ -136,8 +221,9 @@ func main() {
 			log.Fatal(err)
 		}
 		fmt.Printf("Estimated gas for deploy: %v\n", estimateGas)
+		fmt.Printf("Contract %s will be deploy to: %s chain\n", file.Name(), chain.ChainName)
 		// Create a new instance of a transaction signer
-		auth, err := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(chainId))
+		auth, err := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(chainID))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -156,9 +242,8 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-
 		// Wait for the transaction to be mined
-		fmt.Printf("Contract %s waiting to be mined: 0x%x\n", file.Name(), tx.Hash())
+		fmt.Printf("Contract %s waiting to be mined: %s\n", file.Name(), chain.ExplorerURL+"/tx/"+tx.Hash().Hex())
 		receipt, err := bind.WaitMined(context.Background(), client, tx)
 		if err != nil {
 			log.Fatal(err)
@@ -168,6 +253,6 @@ func main() {
 		}
 
 		// Print the contract address and the transaction hash
-		fmt.Printf("Contract %s deployed to: %s\n", file.Name(), address.Hex())
+		fmt.Printf("Contract %s deployed to: %s\n", file.Name(), chain.ExplorerURL+"/address/"+address.Hex())
 	}
 }
