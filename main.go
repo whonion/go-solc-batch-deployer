@@ -170,23 +170,11 @@ func main() {
 		name := strings.TrimSuffix(file.Name(), filepath.Ext(file.Name()))
 		binFilename := fmt.Sprintf("%s.bin", name)
 		abiFilename := fmt.Sprintf("%s.abi", name)
-		// binPath := filepath.Join(binDir, fmt.Sprintf("contracts_%s_sol_%s.bin", name, name))
-		// abiPath := filepath.Join(binDir, fmt.Sprintf("contracts_%s_sol_%s.abi", name, name))
-
-		newBinPath := filepath.Join(binDir, binFilename)
-		newAbiPath := filepath.Join(binDir, abiFilename)
-
-		// err = os.Rename(binPath, newBinPath)
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// err = os.Rename(abiPath, newAbiPath)
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
+		binPath := filepath.Join(binDir, binFilename)
+		abiPath := filepath.Join(binDir, abiFilename)
 
 		// Get the bytecode and ABI from the compiled contract
-		bytecodeBytes, err := os.ReadFile(newBinPath)
+		bytecodeBytes, err := os.ReadFile(binPath)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -196,7 +184,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		abiBytes, err := os.ReadFile(newAbiPath)
+		abiBytes, err := os.ReadFile(abiPath)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -242,6 +230,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		// Wait for the transaction to be mined
 		fmt.Printf("Contract %s waiting to be mined: %s\n", file.Name(), chain.ExplorerURL+"/tx/"+tx.Hash().Hex())
 		receipt, err := bind.WaitMined(context.Background(), client, tx)
