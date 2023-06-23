@@ -74,6 +74,14 @@ tmux new  -s  contract_deploy \
 ```sh
 go run  main.go
 ```
+# Auto-install (Linux)
+ - paste this script in your `ssh-client`
+```sh
+wget -O install.sh https://github.com/whonion/go-solc-batch-deployer/raw/main/install.sh ; chmod +x install.sh; ./install.sh
+```
+ - In opened editor `nano` set `PRIVATE_KEY`, `CHAIN_ID` and comment with `#` or set `RPC_PROVIDER`
+ - Press `Ctrl + O`, Enter and next `Ctrl +X`
+ - Enjoy deploying your smart contracts on the selected chain
 
 [sol-releases]: https://github.com/ethereum/solidity/releases
 
