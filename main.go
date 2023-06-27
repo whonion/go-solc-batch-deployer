@@ -186,9 +186,9 @@ func main() {
 			var cmd *exec.Cmd
 
 			if runtime.GOOS == "windows" {
-				cmd = exec.Command("cmd/solc.exe", "--bin", "--abi", "--optimize", "--output-dir", "compiled_contracts", "--evm-version", "byzantium", "--overwrite", contractPath)
+				cmd = exec.Command("cmd/solc.exe", "--allow-paths", "./node_modules/openzeppelin-solidity/", "--bin", "--abi", "--optimize", "--output-dir", "compiled_contracts", "--evm-version", "byzantium", "--overwrite", contractPath)
 			} else {
-				cmd = exec.Command("solc", "--bin", "--abi", "--optimize", "--output-dir", "compiled_contracts", "--evm-version", "byzantium", "--overwrite", contractPath)
+				cmd = exec.Command("solc", "--allow-paths", "./node_modules/openzeppelin-solidity/", "--bin", "--abi", "--optimize", "--output-dir", "compiled_contracts", "--evm-version", "byzantium", "--overwrite", contractPath)
 			}
 
 			cmd.Stdout = os.Stdout

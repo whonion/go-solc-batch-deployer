@@ -1,0 +1,47 @@
+name: Test Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Test Deployment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.20'
+
+      - name: Install Go dependencies
+        run: go get .
+
+      - name: Setup Solidity Compiler v0.8.20
+        run: |
+          wget https://github.com/ethereum/solidity/releases/download/v0.8.20/solc-static-linux
+          chmod +x solc-static-linux
+          sudo mv solc-static-linux /usr/local/bin/solc
+      - name: Remove panic contracts
+        run: |
+          rm contracts/USDC.sol
+          rm contracts/WETH.sol
+    
+      - name: Setup environment variables
+        run: |
+          echo "PRIVATE_KEY=${{ secrets.PRIVATE_KEY }}" >> $GITHUB_ENV
+          echo "RPC_PROVIDER=${{ secrets.RPC_PROVIDER }}" >> $GITHUB_ENV
+          echo "CHAIN_ID=5" >> $GITHUB_ENV
+          
+      - name: Run script and Deployment contracts
+        run: |
+          go run main.go
+    env:
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+      RPC_PROVIDER: ${{ secrets.RPC_PROVIDER }}
+      CHAIN_ID: 5
