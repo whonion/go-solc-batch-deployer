@@ -69,10 +69,10 @@ func main() {
 			RPCURL:      "https://rpc.ankr.com/arbitrum",
 		},
 		42170: {
-			ChainID:     42161,
-			ChainName:   "Arbitrum",
-			ExplorerURL: "https://arbiscan.io",
-			RPCURL:      "https://rpc.ankr.com/arbitrum",
+			ChainID:     42170,
+			ChainName:   "Arbitrum Nova",
+			ExplorerURL: "https://nova.arbitrum.io",
+			RPCURL:      "https://nova.arbitrum.io/rpc",
 		},
 		137: {
 			ChainID:     137,
@@ -134,11 +134,23 @@ func main() {
 			ExplorerURL: "https://scrollscan.com",
 			RPCURL:      "https://scroll-alpha-public.unifra.io",
 		},
+		534351: {
+			ChainID:     534351,
+			ChainName:   "Scroll Alpha Testnet",
+			ExplorerURL: "https://sepolia-blockscout.scroll.io/",
+			RPCURL:      "https://1rpc.io/scroll/sepolia",
+		},
 		59140: {
 			ChainID:     59140,
-			ChainName:   "ConsenSys zkEVM (Linea)",
+			ChainName:   "Linea(Testnet)",
 			ExplorerURL: "https://goerli.lineascan.build",
 			RPCURL:      "https://rpc.goerli.linea.build",
+		},
+		59144: {
+			ChainID:     59144,
+			ChainName:   "Linea Mainnet",
+			ExplorerURL: "https://lineascan.build/",
+			RPCURL:      "https://rpc.linea.build",
 		},
 		6102: {
 			ChainID:     6102,
