@@ -140,6 +140,12 @@ func main() {
 			ExplorerURL: "https://sepolia-blockscout.scroll.io/",
 			RPCURL:      "https://1rpc.io/scroll/sepolia",
 		},
+		534352: {
+			ChainID:     534351,
+			ChainName:   "Scroll Mainnet",
+			ExplorerURL: "https://scrollscan.com/",
+			RPCURL:      "https://rpc.scroll.io",
+		},		
 		59140: {
 			ChainID:     59140,
 			ChainName:   "Linea(Testnet)",
