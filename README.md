@@ -1,4 +1,5 @@
-[![Go version][go-badge]][go-url] [![go-report][go-report-badge]][go-report-url] [![Lint][lint-badge]][lint-url] [![Test][test-badge]][test-url] [![Build][build-badge]][build-url] [![Makefile][makefile-badge]][makefile-url] [![deploy][deploy-badge]][deploy-url] [![HitCount](https://hits.dwyl.com/whonion//SmartContractBatchDeployer.svg)](https://hits.dwyl.com/whonion/SmartContractBatchDeployer)</br>
+[![Go version][go-badge]][go-url] [![go-report][go-report-badge]][go-report-url] [![Lint][lint-badge]][lint-url] [![Test][test-badge]][test-url] [![Build][build-badge]][build-url] [![Makefile][makefile-badge]][makefile-url] [![deploy][deploy-badge]][deploy-url] [![HitCount](https://hits.dwyl.com/whonion//SmartContractBatchDeployer.svg)](https://hits.dwyl.com/whonion/SmartContractBatchDeployer)[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwhonion%2Fgo-solc-batch-deployer.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwhonion%2Fgo-solc-batch-deployer?ref=badge_shield)
+</br>
 # Example of batch deployment smart contracts to EVM using Go Lang</br>
 
 Implementation with go-ethereum<br>
@@ -107,3 +108,6 @@ wget -O install.sh https://github.com/whonion/go-solc-batch-deployer/raw/main/in
 
 [deploy-badge]: https://github.com/whonion/go-solc-batch-deployer/actions/workflows/deploy.yml/badge.svg
 [deploy-url]: https://github.com/whonion/go-solc-batch-deployer/actions/workflows/deploy.yml
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwhonion%2Fgo-solc-batch-deployer.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwhonion%2Fgo-solc-batch-deployer?ref=badge_large)
