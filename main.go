@@ -170,6 +170,18 @@ func main() {
 			ExplorerURL: "https://explorer.cascadia.foundation",
 			RPCURL:      "https://testnet.cascadia.foundation",
 		},
+		34443: {
+			ChainID:     34443,
+			ChainName:   "Mode network",
+			ExplorerURL: "https://explorer.mode.network/",
+			RPCURL:      "https://1rpc.io/mode",
+		},
+		7000: {
+			ChainID:     7000,
+			ChainName:   "ZetaChain Mainnet",
+			ExplorerURL: "https://explorer.zetachain.com",
+			RPCURL:      "https://zeta.rpcgrid.com",
+		},
 	}
 	for _, privateKeyStr := range privateKeys {
 		privateKey, err := crypto.HexToECDSA(strings.TrimSpace(privateKeyStr))
