@@ -143,13 +143,13 @@ func main() {
 		534351: {
 			ChainID:     534351,
 			ChainName:   "Scroll Alpha Testnet",
-			ExplorerURL: "https://sepolia-blockscout.scroll.io/",
+			ExplorerURL: "https://sepolia-blockscout.scroll.io",
 			RPCURL:      "https://1rpc.io/scroll/sepolia",
 		},
 		534352: {
-			ChainID:     534351,
+			ChainID:     534352,
 			ChainName:   "Scroll Mainnet",
-			ExplorerURL: "https://scrollscan.com/",
+			ExplorerURL: "https://scrollscan.com",
 			RPCURL:      "https://rpc.scroll.io",
 		},
 		59140: {
@@ -161,7 +161,7 @@ func main() {
 		59144: {
 			ChainID:     59144,
 			ChainName:   "Linea Mainnet",
-			ExplorerURL: "https://lineascan.build/",
+			ExplorerURL: "https://lineascan.build",
 			RPCURL:      "https://rpc.linea.build",
 		},
 		6102: {
@@ -173,7 +173,7 @@ func main() {
 		34443: {
 			ChainID:     34443,
 			ChainName:   "Mode network",
-			ExplorerURL: "https://explorer.mode.network/",
+			ExplorerURL: "https://explorer.mode.network",
 			RPCURL:      "https://1rpc.io/mode",
 		},
 		7000: {
@@ -181,6 +181,18 @@ func main() {
 			ChainName:   "ZetaChain Mainnet",
 			ExplorerURL: "https://explorer.zetachain.com",
 			RPCURL:      "https://zeta.rpcgrid.com",
+		},
+		8453: {
+			ChainID:     8453,
+			ChainName:   "Base Mainnet",
+			ExplorerURL: "https://basescan.org",
+			RPCURL:      "https://base-rpc.publicnode.com",
+		},
+		204: {
+			ChainID:     204,
+			ChainName:   "opBNB",
+			ExplorerURL: "https://mainnet.opbnbscan.com",
+			RPCURL:      "https://opbnb-rpc.publicnode.com",
 		},
 	}
 	for _, privateKeyStr := range privateKeys {

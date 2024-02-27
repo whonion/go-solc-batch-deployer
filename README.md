@@ -1,6 +1,6 @@
-[![Go version][go-badge]][go-url] [![go-report][go-report-badge]][go-report-url] [![Lint][lint-badge]][lint-url] [![Test][test-badge]][test-url] [![Build][build-badge]][build-url] [![Makefile][makefile-badge]][makefile-url] [![deploy][deploy-badge]][deploy-url] [![HitCount](https://hits.dwyl.com/whonion//SmartContractBatchDeployer.svg)](https://hits.dwyl.com/whonion/SmartContractBatchDeployer)[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwhonion%2Fgo-solc-batch-deployer.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwhonion%2Fgo-solc-batch-deployer?ref=badge_shield)
+[![Status](https://img.shields.io/badge/status-active-success.svg)](https://github.com/whonion/go-solc-batch-deployer/blob/main/) [![Go version][go-badge]][go-url] [![go-report][go-report-badge]][go-report-url] [![Lint][lint-badge]][lint-url] [![Test][test-badge]][test-url] [![Build][build-badge]][build-url] [![Makefile][makefile-badge]][makefile-url] [![deploy][deploy-badge]][deploy-url] [![HitCount](https://hits.dwyl.com/whonion/go-solc-batch-deployer.svg)](https://hits.dwyl.com/whonion/go-solc-batch-deployer)[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fwhonion%2Fgo-solc-batch-deployer.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fwhonion%2Fgo-solc-batch-deployer?ref=badge_shield)
 </br>
-# Example of batch deployment smart contracts to EVM using Go Lang</br>
+## Example of batch deployment smart contracts to EVM using Go Lang</br>
 
 Implementation with go-ethereum<br>
 
@@ -55,19 +55,27 @@ cd go-solc-batch-deployer
 
 
 
- - Add to `.env-file` your variables: `PRIVATE_KEY` (without **0x**),`RPC_PROVIDER` and `CHAIN_ID`
+ - Add to `.env-file` your variables: `PRIVATE_KEY` (without **0x**), `RPC_PROVIDER` and `CHAIN_ID`
 
 ```sh
+PRIVATE_KEY = '<YOUR_PRIVATE_KEY1>
+<YOUR_PRIVATE_KEY2>
+<YOUR_PRIVATE_KEY3>
+<YOUR_PRIVATE_KEY4>
+<YOUR_PRIVATE_KEY5>
+<YOUR_PRIVATE_KEY6>
+<YOUR_PRIVATE_KEY7>
+<YOUR_PRIVATE_KEY8>
+<YOUR_PRIVATE_KEYn>'
 CHAIN_ID = 10
-PRIVATE_KEY = '0x.......................................................'
-RPC_PROVIDER='https://rpc.ankr.com/optimism/{YOUR_API_KEY}'
+RPC_PROVIDER = 'https://rpc.ankr.com/optimism/{YOUR_API_KEY}'
 ```
 
  - Add correct files *.sol to the `contacts` folder for deployment on the required chain
 
  - Create new session with `tmux`
 ```sh
-tmux new  -s  contract_deploy \
+tmux new  -s  contractdeploy \
 ```
  - Run `main.go`
  
