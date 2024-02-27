@@ -67,8 +67,10 @@ PRIVATE_KEY = '<YOUR_PRIVATE_KEY1>
 <YOUR_PRIVATE_KEY7>
 <YOUR_PRIVATE_KEY8>
 <YOUR_PRIVATE_KEYn>'
-CHAIN_ID = 10
-RPC_PROVIDER = 'https://rpc.ankr.com/optimism/{YOUR_API_KEY}'
+#Specify your instant RPC-node
+#RPC_PROVIDER='https://ethereum-goerli.publicnode.com'
+#Specify CHAIN_IDs for deploy contracts (In Example contracts'll deploy to Goerly and Sepolia chains for all PRIVATE_KEYs)
+CHAIN_ID = '5,11155111'
 ```
 
  - Add correct files *.sol to the `contacts` folder for deployment on the required chain

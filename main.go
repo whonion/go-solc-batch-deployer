@@ -48,6 +48,23 @@ func main() {
 	// Print the number of private keys for testing
 	fmt.Printf("Loaded wallets: %d\n", len(privateKeys))
 
+	// Load your chainIDs as a comma-separated string
+	chainIDsStr, ok := os.LookupEnv("CHAIN_ID")
+	if !ok {
+		log.Fatal("CHAIN_ID environment variable not set")
+	}
+	chainIDs := strings.Split(chainIDsStr, ",")
+
+	// Convert chain IDs to integers
+	var chains []int64
+	for _, id := range chainIDs {
+		chainID, err := strconv.ParseInt(strings.TrimSpace(id), 10, 64)
+		if err != nil {
+			log.Fatal(err)
+		}
+		chains = append(chains, chainID)
+	}
+
 	// Define EVM chains with corresponding explorer and RPC URLs
 	evmChains := map[int64]evmChain{
 		1: {
@@ -195,146 +212,148 @@ func main() {
 			RPCURL:      "https://opbnb-rpc.publicnode.com",
 		},
 	}
+
+	// Iterate over each private key
 	for _, privateKeyStr := range privateKeys {
 		privateKey, err := crypto.HexToECDSA(strings.TrimSpace(privateKeyStr))
 		if err != nil {
 			log.Fatalf("Error parsing private key: %s", err)
 		}
-		// Load your chainID
-		chainIDStr, ok := os.LookupEnv("CHAIN_ID")
-		if !ok {
-			log.Fatal("CHAIN_ID environment variable not set")
-		}
-		chainID, err := strconv.ParseInt(chainIDStr, 10, 64)
-		if err != nil {
-			log.Fatal(err)
-		}
-		// Check if chainID exists in the evmChains map
-		chain, ok := evmChains[chainID]
-		if !ok {
-			log.Fatalf("Unsupported CHAIN_ID: %d", chainID)
-		}
 
-		// Connect to RPC Provider
-		rpcProvider, ok := os.LookupEnv("RPC_PROVIDER")
-		if !ok {
-			fmt.Printf("RPC_PROVIDER environment variable not set\n")
-			fmt.Printf("RPC will use the public node from https://chainlist.org/\n")
-			rpcProvider = chain.RPCURL
-		}
+		// Iterate over each chain
+		for _, chainID := range chains {
+			// Check if chainID exists in the evmChains map
+			chain, ok := evmChains[chainID]
+			if !ok {
+				log.Fatalf("⛓️ Unsupported CHAIN_ID: %d", chainID)
+			}
 
-		client, err := ethclient.Dial(rpcProvider)
-		if err != nil {
-			log.Fatal(err)
-		}
-		// Load and deploy each contract in succession
-		contractFiles, err := os.ReadDir("./contracts")
-		if err != nil {
-			log.Fatal(err)
-		}
-		for _, file := range contractFiles {
-			if filepath.Ext(file.Name()) == ".sol" {
-				// Compile contract
-				contractPath := filepath.Join("contracts", file.Name())
-				var cmd *exec.Cmd
+			// Connect to RPC Provider
+			rpcProvider, ok := os.LookupEnv("RPC_PROVIDER")
+			if !ok {
+				fmt.Printf("🛑 RPC_PROVIDER environment variable not set\n")
+				fmt.Printf("RPC will use the public node from 🌎 https://chainlist.org/\n")
+				rpcProvider = chain.RPCURL
+			}
 
-				if runtime.GOOS == "windows" {
-					cmd = exec.Command("cmd/solc.exe", "--allow-paths", "./node_modules/openzeppelin-solidity/", "--bin", "--abi", "--optimize", "--output-dir", "compiled_contracts", "--evm-version", "byzantium", "--overwrite", contractPath)
-				} else {
-					cmd = exec.Command("solc", "--allow-paths", "./node_modules/openzeppelin-solidity/", "--bin", "--abi", "--optimize", "--output-dir", "compiled_contracts", "--evm-version", "byzantium", "--overwrite", contractPath)
+			client, err := ethclient.Dial(rpcProvider)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			// Load and deploy each contract in succession
+			contractFiles, err := os.ReadDir("./contracts")
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			for _, file := range contractFiles {
+				{
+					if filepath.Ext(file.Name()) == ".sol" {
+						// Compile contract
+						contractPath := filepath.Join("contracts", file.Name())
+						var cmd *exec.Cmd
+
+						if runtime.GOOS == "windows" {
+							cmd = exec.Command("cmd/solc.exe", "--allow-paths", "./node_modules/openzeppelin-solidity/", "--bin", "--abi", "--optimize", "--output-dir", "compiled_contracts", "--evm-version", "byzantium", "--overwrite", contractPath)
+						} else {
+							cmd = exec.Command("solc", "--allow-paths", "./node_modules/openzeppelin-solidity/", "--bin", "--abi", "--optimize", "--output-dir", "compiled_contracts", "--evm-version", "byzantium", "--overwrite", contractPath)
+						}
+
+						cmd.Stdout = os.Stdout
+						cmd.Stderr = os.Stderr
+						err := cmd.Run()
+						if err != nil {
+							log.Fatal(err)
+						}
+					}
+
+					// Get the absolute path to the bin folder
+					binDir, err := filepath.Abs("./compiled_contracts")
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					// Rename output files
+					name := strings.TrimSuffix(file.Name(), filepath.Ext(file.Name()))
+					binFilename := fmt.Sprintf("%s.bin", name)
+					abiFilename := fmt.Sprintf("%s.abi", name)
+					binPath := filepath.Join(binDir, binFilename)
+					abiPath := filepath.Join(binDir, abiFilename)
+
+					// Get the bytecode and ABI from the compiled contract
+					bytecodeBytes, err := os.ReadFile(binPath)
+					if err != nil {
+						log.Fatal(err)
+					}
+					bytecodeStr := string(bytecodeBytes)
+					constructorBytes, err := hex.DecodeString(bytecodeStr[:len(bytecodeStr)-68])
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					abiBytes, err := os.ReadFile(abiPath)
+					if err != nil {
+						log.Fatal(err)
+					}
+					// Set the gas price and gas limit
+					gasPrice, err := client.SuggestGasPrice(context.Background())
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					// Calculate the gas required for deploying the contract
+					estimateGas, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
+						From: crypto.PubkeyToAddress(privateKey.PublicKey),
+						To:   nil,
+						Data: constructorBytes,
+					})
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					if err != nil {
+						fmt.Printf("Estimate gas overflow uint64\n")
+						log.Fatal(err)
+					}
+					fmt.Printf("💸  Estimated gas for deploy: %v\n", estimateGas)
+					fmt.Printf("🛜   Contract %s will be deploy to: %s chain\n", file.Name(), chain.ChainName)
+					// Create a new instance of a transaction signer
+					auth, err := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(chainID))
+					if err != nil {
+						log.Fatal(err)
+					}
+					gasLimit := estimateGas
+					auth.GasPrice = gasPrice
+					auth.GasLimit = gasLimit + uint64(50000)
+
+					// Load the contract's ABI
+					contractABI, err := abi.JSON(bytes.NewReader(abiBytes))
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					// Deploy the contract
+					address, tx, _, err := bind.DeployContract(auth, contractABI, constructorBytes, client)
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					// Wait for the transaction to be mined
+					fmt.Printf("📃  Contract %s waiting to be mined: %s\n", file.Name(), chain.ExplorerURL+"/tx/"+tx.Hash().Hex())
+					receipt, err := bind.WaitMined(context.Background(), client, tx)
+					if err != nil {
+						log.Fatal(err)
+					}
+					if receipt.Status != types.ReceiptStatusSuccessful {
+						log.Fatalf("❌  contract %s deployment failed", file.Name())
+					}
+
+					// Print the contract address and the transaction hash
+					fmt.Printf("🚀  Contract %s deployed to: %s\n", file.Name(), chain.ExplorerURL+"/address/"+address.Hex())
 				}
-
-				cmd.Stdout = os.Stdout
-				cmd.Stderr = os.Stderr
-				err := cmd.Run()
-				if err != nil {
-					log.Fatal(err)
-				}
 			}
-
-			// Get the absolute path to the bin folder
-			binDir, err := filepath.Abs("./compiled_contracts")
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			// Rename output files
-			name := strings.TrimSuffix(file.Name(), filepath.Ext(file.Name()))
-			binFilename := fmt.Sprintf("%s.bin", name)
-			abiFilename := fmt.Sprintf("%s.abi", name)
-			binPath := filepath.Join(binDir, binFilename)
-			abiPath := filepath.Join(binDir, abiFilename)
-
-			// Get the bytecode and ABI from the compiled contract
-			bytecodeBytes, err := os.ReadFile(binPath)
-			if err != nil {
-				log.Fatal(err)
-			}
-			bytecodeStr := string(bytecodeBytes)
-			constructorBytes, err := hex.DecodeString(bytecodeStr[:len(bytecodeStr)-68])
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			abiBytes, err := os.ReadFile(abiPath)
-			if err != nil {
-				log.Fatal(err)
-			}
-			// Set the gas price and gas limit
-			gasPrice, err := client.SuggestGasPrice(context.Background())
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			// Calculate the gas required for deploying the contract
-			estimateGas, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
-				From: crypto.PubkeyToAddress(privateKey.PublicKey),
-				To:   nil,
-				Data: constructorBytes,
-			})
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			if err != nil {
-				fmt.Printf("Estimate gas overflow uint64\n")
-				log.Fatal(err)
-			}
-			fmt.Printf("Estimated gas for deploy: %v\n", estimateGas)
-			fmt.Printf("Contract %s will be deploy to: %s chain\n", file.Name(), chain.ChainName)
-			// Create a new instance of a transaction signer
-			auth, err := bind.NewKeyedTransactorWithChainID(privateKey, big.NewInt(chainID))
-			if err != nil {
-				log.Fatal(err)
-			}
-			gasLimit := estimateGas
-			auth.GasPrice = gasPrice
-			auth.GasLimit = gasLimit + uint64(10000)
-
-			// Load the contract's ABI
-			contractABI, err := abi.JSON(bytes.NewReader(abiBytes))
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			// Deploy the contract
-			address, tx, _, err := bind.DeployContract(auth, contractABI, constructorBytes, client)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			// Wait for the transaction to be mined
-			fmt.Printf("Contract %s waiting to be mined: %s\n", file.Name(), chain.ExplorerURL+"/tx/"+tx.Hash().Hex())
-			receipt, err := bind.WaitMined(context.Background(), client, tx)
-			if err != nil {
-				log.Fatal(err)
-			}
-			if receipt.Status != types.ReceiptStatusSuccessful {
-				log.Fatalf("contract %s deployment failed", file.Name())
-			}
-
-			// Print the contract address and the transaction hash
-			fmt.Printf("Contract %s deployed to: %s\n", file.Name(), chain.ExplorerURL+"/address/"+address.Hex())
 		}
+
 	}
 }
