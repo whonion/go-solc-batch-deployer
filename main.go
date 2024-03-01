@@ -211,6 +211,18 @@ func main() {
 			ExplorerURL: "https://mainnet.opbnbscan.com",
 			RPCURL:      "https://opbnb-rpc.publicnode.com",
 		},
+		81457: {
+			ChainID:     81457,
+			ChainName:   "Blast Mainnet",
+			ExplorerURL: "https://blastscan.io",
+			RPCURL:      "https://blast.blockpi.network/v1/rpc/public",
+		},
+		245022934: {
+			ChainID:     245022934,
+			ChainName:   "Neon EVM Mainnet",
+			ExplorerURL: "https://neonscan.org",
+			RPCURL:      "https://neon-proxy-mainnet.solana.p2p.orgc",
+		},							
 	}
 
 	// Iterate over each private key
